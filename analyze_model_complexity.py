@@ -46,6 +46,15 @@ def build_baseline_unet(input_shape, num_classes):
     outputs = layers.Dense(num_classes, activation='softmax')(x)
     return models.Model(inputs, outputs)
 
+# --- Parsing des arguments ---
+parser = argparse.ArgumentParser(description="Analysz model complexity")
+parser.add_argument(
+    "--report_path",
+    type=str,
+    help="path to output file"
+)
+args = parser.parse_args()
+
 # Analysis
 input_shape = (224, 224, 3)
 num_classes = 2
@@ -85,7 +94,7 @@ avg_time = (end - start) / 50
 print(f"Average Inference Time (Batch=1): {avg_time*1000:.2f} ms")
 
 # Summary for report
-report_path = r'd:\project_saoudia_work\realfake2017_Lora\complexity_report.txt'
+report_path = args.report_path
 with open(report_path, 'w') as f:
     f.write(f"Model Complexity Analysis Report\n")
     f.write(f"================================\n")
