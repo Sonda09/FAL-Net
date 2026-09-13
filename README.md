@@ -92,8 +92,6 @@ The main FAL-Net configuration uses:
 
 In the released implementation, the **entire ResNet50 backbone is fine-tuned jointly** with the decoder and classification head.
 
-No layer-wise selective freezing of intermediate ResNet50 blocks is used in the main implementation.
-
 The principal configuration is:
 
 ```text
