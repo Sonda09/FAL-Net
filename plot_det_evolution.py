@@ -2,7 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import argparse
-## python plot_det_evolution.py --dir2011 results_LivDet2011 --dir2013 results_LivDet2013 --dir2015 results_LivDet2015 --dir2017 results_LivDet2017
+# Example:
+# python plot_det_evolution.py \
+#     --dir2015CM results_CrossMatch/ablation/proposed_r8 \
+#     --dir2015HS results_Hi_Scan/ablation/proposed_r8 \
+#     --dir2015DP results_Digital_Persona/ablation/proposed_r8 \
+#     --dir2015GB results_GreenBit/ablation/proposed_r8
 def plot_longitudinal_det(base_dirs, labels):
     plt.figure(figsize=(10, 8))
     
