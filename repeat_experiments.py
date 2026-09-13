@@ -40,6 +40,7 @@ def main():
                 "--fake-dir-train", args.fake_dir_train,
                 "--real-dir-test", args.real_dir_test,
                 "--fake-dir-test", args.fake_dir_test,
+                "--sensor", args.sensor,
             ],
             check=True
         )
