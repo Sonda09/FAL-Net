@@ -36,7 +36,7 @@ Additional large reproducibility files are provided in the supplementary reposit
 Clone the repository and install the required dependencies:
 
 ```bash
-git clone <FAL-NET-GITHUB-URL>
+git clone https://github.com/Sonda09/FAL-Net.git)
 cd FAL-Net
 pip install -r requirements.txt
 ```
@@ -315,13 +315,6 @@ python plot_det_curve.py --help
 python plot_det_evolution.py --help
 ```
 
-The current implementation does **not** use undocumented arguments such as:
-
-```text
---config
---dataset
-```
-
 The ablation configurations are predefined internally in `ablation_runner.py`.
 
 ---
@@ -346,5 +339,7 @@ If you use this implementation, please cite:
 **Sonda Ammar Bouhamed**
 Associate Professor
 Higher Institute of Computer Science and Multimedia of Sfax (ISIMS)
+SM@RTS Laboratory - Digital Research Center of Sfax - Tunisia
+IAPR-TC4 Member
 University of Sfax, Tunisia
 SM@RTS Laboratory, Digital Research Center of Sfax (CRNS)
