@@ -36,7 +36,7 @@ Additional large reproducibility files are provided in the supplementary reposit
 Clone the repository and install the required dependencies:
 
 ```bash
-git clone https://github.com/Sonda09/FAL-Net.git)
+git clone https://github.com/Sonda09/FAL-Net.git
 cd FAL-Net
 pip install -r requirements.txt
 ```
