@@ -1,626 +1,352 @@
-# FAL-Net: A Hybrid LoRA-Enhanced Architecture with Spatial Attention for Robust Fingerprint Liveness Detection
+# FAL-Net
 
-This repository provides the implementation and reproducibility resources for:
+**FAL-Net: A Hybrid LoRA-Enhanced Architecture with Spatial Attention for Robust Fingerprint Liveness Detection**
 
-> **FAL-Net: A Hybrid LoRA-Enhanced Architecture with Spatial Attention for Robust Fingerprint Liveness Detection**
+This repository contains the implementation and reproducibility resources associated with the FAL-Net paper submitted to *IEEE Transactions on Biometrics, Behavior, and Identity Science*.
 
-The repository is intended to facilitate the independent verification and reproduction of the experimental results reported in the manuscript.
-
-The reproducibility package includes the complete training and evaluation code, ablation-study implementation, repeated-experiment scripts, pretrained checkpoints, experimental configurations, and saved evaluation results.
+The implementation supports model training, testing, ablation experiments, repeated experiments, DET-curve generation, and computational-efficiency evaluation.
 
 ---
 
-## 1. Reproducibility Package
+## 1. Repository Contents
 
-The complete reproducibility package is distributed through the combination of this GitHub repository and a dedicated Google Drive folder.
+The main scripts are:
 
-### GitHub Repository
-
-The GitHub repository contains:
-
-- the complete model implementation
-- training scripts
-- testing and evaluation scripts
-- dataset loading and preprocessing code
-- ablation-study implementation
-- repeated-experiment scripts
-- metric computation
-- DET/ROC plotting utilities
-- configuration files and documentation
-
-### Pretrained Models and Experimental Results
-
-The pretrained checkpoints and associated experimental results are available in the following Google Drive folder:
-
-**FAL-Net Reproducibility Package**
-https://drive.google.com/drive/u/0/folders/1xD8beNvmwn-r5pVSiCu4RkZg2Tu_w5nZ
-
-The Drive folder contains the pretrained checkpoints corresponding to the experiments reported in the paper, together with the associated experimental results and configuration files.
-
----
-
-## 2. Reproducibility Overview
-
-The current reproducibility package has been substantially expanded and updated with respect to the previous version.
-
-For every experimental result reported in the paper, the corresponding pretrained checkpoint is provided in the reproducibility package.
-
-The checkpoints are organized using descriptive dataset- and experiment-specific names. Each checkpoint can therefore be associated with:
-
-- the corresponding dataset
-- the experimental protocol
-- the evaluation script
-- the corresponding result directory
-- the saved metric results
-
-The package is designed so that a reported result can be independently checked using the corresponding pretrained checkpoint without requiring model retraining.
-
-The package also provides the scripts required to reproduce the experiments from training when desired.
-
----
-
-## 3. Paper-to-Checkpoint-to-Results Mapping
-
-The following table provides a direct mapping between the experiments reported in the manuscript and the corresponding reproducibility resources.
-
-| Paper result | Dataset | Protocol / Experiment | Checkpoint | Results |
-|---|---|---|---|---|
-| Table III | LivDet 2011 | Intra-sensor | Corresponding sensor-specific `.h5` checkpoint | Corresponding `results_*` directory |
-| Table IV | LivDet 2013 | Intra-sensor | Corresponding sensor-specific `.h5` checkpoint | Corresponding `results_*` directory |
-| Table V | LivDet 2015 | Known/unknown material | Corresponding sensor-specific `.h5` checkpoints | Corresponding `results_*` directories |
-| Table VI | LivDet 2015 | Intra-sensor | Corresponding sensor-specific `.h5` checkpoints | Corresponding `results_*` directories |
-| Table VII | LivDet 2017 | Intra-sensor / unknown material | `best_model_with_attention_Greenbit.h5`, `best_model_with_attention_Orcanthus.h5` | `results_Greenbit/`, `results_Orcanthus/` |
-| Table VIII | LivDet 2015 | Cross-sensor | Corresponding source-sensor `.h5` checkpoints | Corresponding source-target result directories |
-| Table IX | -- | Model complexity | Corresponding model configuration | `training_info.json` |
-| Table X | Reported datasets | Repeated experiments | Corresponding checkpoints / repeated runs | Mean ± standard deviation results |
-| Table XI | Reported dataset | Ablation study | Corresponding ablation checkpoints | Corresponding ablation results |
-
----
-
-## 4. Repository Structure
-
-The main repository is organized as follows:
-
-```
-FAL-Net/
-│
-├── data_loader.py
-├── model_ablation.py
-├── train_ablation.py
-├── test_ablation.py
-├── ablation_runner.py
-├── repeat_experiments.py
-├── plot_det_curve.py
-├── plot_det_evolution.py
-├── README.md
+```text
+train_ablation.py
+test_ablation.py
+ablation_runner.py
+repeat_experiments.py
+plot_det_curve.py
+plot_det_evolution.py
+benchmark_efficiency.py
+requirements.txt
 ```
 
+The repository also contains the generated results and, where applicable, trained model checkpoints.
+
+Additional large reproducibility files are provided in the supplementary repository:
+
+[FAL-Net reproducibility resources](https://drive.google.com/drive/u/0/folders/1xD8beNvmwn-r5pVSiCu4RkZg2Tu_w5nZ?utm_source=chatgpt.com)
+
 ---
 
-## 5. Main Implementation Components
+## 2. Installation
 
-### 5.1 `data_loader.py`
-
-This file contains the dataset loading and preprocessing procedures, including:
-
-- image loading
-- preprocessing
-- data augmentation
-- label assignment
-- training/validation splitting
-
-The training data are divided into training and validation subsets.
-
-A dedicated validation subset corresponding to 15% of the original training data is used for checkpoint selection, early stopping and monitoring the training process.
-
-The official test partition is not used for model selection. The test set remains reserved for the final evaluation.
-
-### 5.2 `model_ablation.py`
-
-This file implements the FAL-Net architecture and the configurations used for the ablation experiments.
-
-The implementation also supports the configurations required by the ablation study.
-
-### 5.3 `train_ablation.py`
-
-This script is used for model training.
-
-Example:
+Clone the repository and install the required dependencies:
 
 ```bash
-python train_ablation.py \
-  --real-dir-train "<TRAIN_LIVE_DIRECTORY>" \
-  --fake-dir-train "<TRAIN_SPOOF_DIRECTORY>" \
-  --real-dir-test "<TEST_LIVE_DIRECTORY>" \
-  --fake-dir-test "<TEST_SPOOF_DIRECTORY>" \
-  --rank 8 \
-  --ssa \
-  --multiscale \
-  --epochs 100 \
-  --output "<OUTPUT_DIRECTORY>"
+git clone <FAL-NET-GITHUB-URL>
+cd FAL-Net
+pip install -r requirements.txt
 ```
 
-The exact configuration used for an experiment is recorded in `training_info.json`.
+The exact package versions used for the experiments are specified in `requirements.txt`.
 
-### 5.4 `test_ablation.py`
+---
 
-This script evaluates a trained or pretrained model on an independent test set.
+## 3. Dataset Organization
 
-Example:
+The scripts expect separate directories for bona fide/live and spoof/attack samples.
+
+```text
+dataset/
+├── train/
+│   ├── live/
+│   └── fake/
+└── test/
+    ├── live/
+    └── fake/
+```
+
+The corresponding directories are provided through:
+
+```text
+--real-dir-train
+--fake-dir-train
+--real-dir-test
+--fake-dir-test
+```
+
+The label convention used by the implementation is:
+
+```text
+0 = Live / Bona Fide
+1 = Fake / Spoof / Presentation Attack
+```
+
+The experiments cover LivDet 2011, 2013, 2015, and 2017, including the sensors reported in the paper.
+
+---
+
+## 4. Main FAL-Net Configuration
+
+The main FAL-Net configuration uses:
+
+* ImageNet-pretrained ResNet50 backbone;
+* multi-scale feature extraction;
+* attention-guided decoder;
+* Soft Spatial Attention (SSA);
+* multi-scale feature fusion;
+* LoRA with rank 8 in the classification head.
+
+In the released implementation, the **entire ResNet50 backbone is fine-tuned jointly** with the decoder and classification head.
+
+No layer-wise selective freezing of intermediate ResNet50 blocks is used in the main implementation.
+
+The principal configuration is:
+
+```text
+proposed_r8
+```
+
+with:
+
+```text
+LoRA rank = 8
+SSA = enabled
+Multi-scale fusion = enabled
+Backbone = trainable
+```
+
+---
+
+## 5. Reproducing the Ablation Study
+
+The ablation configurations are predefined in `ablation_runner.py`.
+
+Available configurations include:
+
+```text
+full_finetuning
+frozen_backbone
+baseline
+lora_only
+ssa_only
+proposed_r4
+proposed_r8
+single_scale
+```
+
+The complete command-line interface can be checked with:
 
 ```bash
-python test_ablation.py \
-  --model "<PATH_TO_MODEL>.h5" \
-  --output "<OUTPUT_DIRECTORY>" \
-  --config-note "proposed_r8" \
-  --real-dir-test "<TEST_LIVE_DIRECTORY>" \
-  --fake-dir-test "<TEST_SPOOF_DIRECTORY>"
+python ablation_runner.py --help
 ```
 
-The evaluation produces the corresponding metric results.
+### Example
 
-### 5.5 `ablation_runner.py`
-
-This script executes the configurations used in the ablation study. It allows the different architectural and training configurations to be evaluated using a consistent experimental procedure.
-
-The results generated by the ablation experiments are used for the analysis reported in Table XI.
-
-### 5.6 `repeat_experiments.py`
-
-This script is used to repeat experiments and compute statistical results.
-
-The repeated experiments are used to obtain mean ± standard deviation for the reported biometric metrics.
-
-The results are used for Table X.
-
----
-
-## 6. Dataset Organization
-
-The experiments use the following LivDet datasets:
-
-- LivDet 2011
-- LivDet 2013
-- LivDet 2015
-- LivDet 2017
-
-The datasets are not redistributed with this repository. Users should obtain the corresponding datasets from their official sources and organize them according to the directory structures expected by the scripts.
-
-The exact directory names used by the experiments are specified in the corresponding commands and configuration files.
-
----
-
-## 7. Label Convention and Evaluation Metrics
-
-The implementation uses the following label convention:
-
-```
-0 = Live / bona fide
-1 = Fake / presentation attack
-```
-
-This convention is consistently applied in the data loading and evaluation procedures.
-
-**APCER** — Attack Presentation Classification Error Rate:
-
-```
-APCER = N(attack classified as bona fide) / N(attack)
-```
-
-**BPCER** — Bona Fide Presentation Classification Error Rate:
-
-```
-BPCER = N(bona fide classified as attack) / N(bona fide)
-```
-
-**ACE** — Average Classification Error:
-
-```
-ACE = (APCER + BPCER) / 2
-```
-
-**EER** — Equal Error Rate: the operating point at which APCER and BPCER are equal.
-
-**BPCER at fixed APCER** — the evaluation also reports BPCER at fixed APCER operating points, including `BPCER@10` and `BPCER@100`, corresponding to the fixed APCER operating points defined in the experimental protocol.
-
----
-
-## 8. Main Training Configuration
-
-The main FAL-Net configuration used in the experiments is documented in the corresponding `training_info.json` files.
-
----
-
-## 9. Reproducing Table III — LivDet 2011
-
-Table III reports the results obtained on LivDet 2011 using the intra-sensor protocol.
-
-The reported sensors are: Biometrika, Digital, Italdata, Sagem.
-
-For each sensor, the reproducibility package provides the corresponding pretrained checkpoint. The corresponding result directory contains the evaluation outputs. For example:
-
-```
-LivDet_2011/
-│
-├── best_model_with_attention_Biometrika.h5
-├── best_model_with_attention_Digital.h5
-├── best_model_with_attention_Italdata.h5
-├── best_model_with_attention_Sagem.h5
-│
-├── results_Biometrika/
-├── results_Digital/
-├── results_Italdata/
-└── results_Sagem/
-```
-
-The results can be independently checked using:
-
-```bash
-python test_ablation.py \
-  --model "<CHECKPOINT>.h5" \
-  --output "<RESULT_DIRECTORY>" \
-  --real-dir-test "<LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<SPOOF_TEST_DIRECTORY>"
-```
-
-The resulting `results_metrics.json` file contains the computed evaluation metrics.
-
----
-
-## 10. Reproducing Table IV — LivDet 2013
-
-Table IV reports the results obtained on LivDet 2013 using the intra-sensor protocol.
-
-The reported sensors are: Biometrika, Italdata.
-
-The corresponding pretrained checkpoints are provided in the reproducibility package. Example organization:
-
-```
-LivDet_2013/
-│
-├── best_model_with_attention_Biometrika.h5
-├── best_model_with_attention_Italdata.h5
-│
-├── results_Biometrika/
-└── results_Italdata/
-```
-
-The results are evaluated using:
-
-```bash
-python test_ablation.py \
-  --model "<CHECKPOINT>.h5" \
-  --output "<RESULT_DIRECTORY>" \
-  --real-dir-test "<LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<SPOOF_TEST_DIRECTORY>"
-```
-
-The corresponding `results_metrics.json` files contain the metrics reported in Table IV.
-
----
-
-## 11. Reproducing Tables V and VI — LivDet 2015
-
-The LivDet 2015 experiments include intra-sensor evaluation and the material-based evaluation protocols reported in the manuscript.
-
-The sensors include: CrossMatch, Digital Persona, GreenBit, Hi-Scan.
-
-The corresponding pretrained checkpoints are provided in the reproducibility package.
-
-### 11.1 Table V — Known and Unknown Materials
-
-The known-material and unknown-material evaluation results are obtained using their corresponding test partitions and pretrained checkpoints.
-
-The package contains separate result directories for the different experimental configurations. Example:
-
-```
-LivDet_2015/
-│
-├── known/
-│   └── ...
-│
-├── unknown/
-│   └── ...
-│
-└── results_*/
-```
-
-The corresponding evaluation can be performed using:
-
-```bash
-python test_ablation.py \
-  --model "<CHECKPOINT>.h5" \
-  --output "<RESULT_DIRECTORY>" \
-  --real-dir-test "<LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<SPOOF_TEST_DIRECTORY>"
-```
-
-The resulting `results_metrics.json` files provide the metrics used for Table V.
-
-### 11.2 Table VI — Intra-Sensor Accuracy
-
-Table VI reports the intra-sensor accuracy comparison for LivDet 2015.
-
-The corresponding checkpoints and evaluation results are provided for the reported sensors in Ablation Study directory. The metrics can be independently recomputed using `test_ablation.py`.
-
----
-
-## 12. Reproducing Table VII — LivDet 2017
-
-Table VII reports the LivDet 2017 evaluation.
-
-The reported sensors are: GreenBit, Orcanthus.
-
-The reproducibility package contains the corresponding checkpoints and result directories. Example:
-
-```
-LivDet_2017/
-│
-├── best_model_with_attention_Greenbit.h5
-├── best_model_with_attention_Orcanthus.h5
-│
-├── results_Greenbit/
-└── results_Orcanthus/
-```
-
-The Greenbit checkpoint corresponds to the GreenBit experiment reported in the paper. The Orcanthus checkpoint corresponds to the Orcanthus experiment reported in the paper. The corresponding result directories contain the evaluation outputs associated with these checkpoints.
-
-To independently verify a result:
-
-```bash
-python test_ablation.py \
-  --model "best_model_with_attention_Greenbit.h5" \
-  --output "results_Greenbit/" \
-  --real-dir-test "<GREENBIT_LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<GREENBIT_SPOOF_TEST_DIRECTORY>"
-```
-
-For Orcanthus:
-
-```bash
-python test_ablation.py \
-  --model "best_model_with_attention_Orcanthus.h5" \
-  --output "results_Orcanthus/" \
-  --real-dir-test "<ORCANTHUS_LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<ORCANTHUS_SPOOF_TEST_DIRECTORY>"
-```
-
-The resulting metrics correspond to the evaluation reported in Table VII.
-
----
-
-## 13. Reproducing Table VIII — Cross-Sensor Generalization
-
-Cross-sensor evaluation is performed on LivDet 2015. In this protocol, the model is trained on one sensor and evaluated on another sensor.
-
-The source and target sensors are explicitly indicated by the experiment directory names. For example:
-
-```
-Source: GreenBit
-Target: Hi-Scan
-```
-
-The trained checkpoint is then evaluated on the target sensor:
-
-```bash
-python test_ablation.py \
-  --model "best_model_<SOURCE_TARGET_DIRECTORY>.h5" \
-  --output "<SOURCE_TARGET_DIRECTORY>" \
-  --real-dir-test "<TARGET_LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<TARGET_SPOOF_TEST_DIRECTORY>"
-```
-
-The corresponding result directory contains the metrics reported in Table VIII. The source-target organization makes it possible to identify the training sensor and evaluation sensor for each cross-sensor experiment.
-
----
-
-## 14. Reproducing Table IX — Model Complexity
-
-Table IX reports the model complexity comparison.
-
-The model configuration and parameter information associated with the experiments are recorded in the corresponding `training_info.json` files.
-
-The model architecture can also be inspected directly through `model_ablation.py`.
-
-The parameter counts can therefore be independently verified from the released implementation.
-
----
-
-## 15. Reproducing Table X — Repeated Experiments
-
-Table X reports the biometric evaluation metrics using repeated experiments.
-
-The experiments are repeated three times to estimate mean ± standard deviation for the reported metrics.
-
-The repeated experiments are implemented in `repeat_experiments.py`.
-
-Example:
-
-```bash
-python repeat_experiments.py --runs 3
-```
-
-The generated results contain the individual-run metrics and the aggregated mean and standard deviation.
-
-The metrics considered include: APCER, BPCER, ACE, EER, BPCER@10, BPCER@100.
-
-The resulting aggregated values are used for Table X.
-
----
-
-## 16. Reproducing Table XI — Ablation Study
-
-Table XI evaluates the contribution of the main components of FAL-Net.
-
-The ablation configurations are implemented in `ablation_runner.py`.
-
-The ablation experiments evaluate the contribution of the architectural and adaptation components considered in the manuscript. The corresponding configurations include the variants reported in the paper, including the relevant combinations of:
-
-- backbone training strategy
-- SSA
-- LoRA
-- multi-scale feature fusion
-- LoRA rank
-- complete FAL-Net configuration
-
-Example:
+For LivDet 2015 CrossMatch:
 
 ```bash
 python ablation_runner.py \
-  --config "<ABLATION_CONFIGURATION>" \
-  --dataset "<DATASET>"
+  --epochs 50 \
+  --real-dir-train "<CROSSMATCH_LIVE_TRAIN_DIRECTORY>" \
+  --fake-dir-train "<CROSSMATCH_SPOOF_TRAIN_DIRECTORY>" \
+  --real-dir-test "<CROSSMATCH_LIVE_TEST_DIRECTORY>" \
+  --fake-dir-test "<CROSSMATCH_SPOOF_TEST_DIRECTORY>" \
+  --sensor CrossMatch
 ```
 
-The corresponding model checkpoints and result files are stored in the experiment-specific directories.
+Results are saved under:
 
-The metric results are stored in `results_metrics.json`, and the configurations are documented in `training_info.json`.
+```text
+results_CrossMatch/ablation/
+```
+
+Each configuration produces, where applicable:
+
+```text
+best_model.h5
+training_info.json
+results_metrics.json
+roc_data.npy
+benchmark_metrics.json
+```
+
+A consolidated summary is saved as:
+
+```text
+full_summary.json
+```
 
 ---
 
-## 17. Reproducing DET Curves
+## 6. Repeated Experiments
 
-The raw curve information is stored in `roc_data.npy`.
+Repeated experiments are implemented in:
 
-The DET curves can be generated using:
+```text
+repeat_experiments.py
+```
+
+The available arguments can be checked with:
 
 ```bash
-python plot_det_curve.py
+python repeat_experiments.py --help
 ```
 
-For comparison of DET curves across experiments or sensors:
+Example:
 
 ```bash
-python plot_det_evolution.py
+python repeat_experiments.py \
+  --runs 3 \
+  --real-dir-train "<CROSSMATCH_LIVE_TRAIN_DIRECTORY>" \
+  --fake-dir-train "<CROSSMATCH_SPOOF_TRAIN_DIRECTORY>" \
+  --real-dir-test "<CROSSMATCH_LIVE_TEST_DIRECTORY>" \
+  --fake-dir-test "<CROSSMATCH_SPOOF_TEST_DIRECTORY>" \
+  --sensor CrossMatch
 ```
 
-The plotting scripts use the stored evaluation data and do not require model retraining.
+The sensor argument is explicitly passed to `ablation_runner.py`.
+
+The generated summaries are stored as:
+
+```text
+full_summary_run_1.json
+full_summary_run_2.json
+full_summary_run_3.json
+```
+
+The current aggregation reports mean and standard deviation for:
+
+* APCER;
+* BPCER;
+* ACE;
+* EER.
 
 ---
 
-## 18. Result Files
+## 7. DET Curves
 
-Each experiment-specific result directory may contain the following files:
+### DET curve for one sensor
 
-```
-results_<experiment>/
-│
-├── results_metrics.json
-├── training_info.json
-└── roc_data.npy
+The script:
+
+```text
+plot_det_curve.py
 ```
 
-**`results_metrics.json`** — This file stores the evaluation metrics generated by the corrected evaluation implementation. Depending on the experiment, it may include: APCER, BPCER, ACE, Accuracy, EER, BPCER@10, BPCER@100.
+accepts the result directory through `--dir`.
 
-**`training_info.json`** — This file documents the experimental configuration, including relevant training and model parameters.
-
-**`roc_data.npy`** — This file contains the data required to generate ROC/DET curves and evaluate operating points.
-
----
-
-## 19. Independent Verification Without Retraining
-
-One of the main objectives of the updated reproducibility package is to allow independent verification without requiring the reviewer or user to retrain the model.
-
-The basic procedure is:
-
-```
-1. Download the corresponding pretrained checkpoint
-                ↓
-2. Obtain and prepare the corresponding dataset
-                ↓
-3. Run test_ablation.py
-                ↓
-4. Obtain results_metrics.json
-                ↓
-5. Compare the computed metrics with the paper
-```
-
-This procedure allows the reported evaluation metrics to be independently verified using the released checkpoint and the corrected evaluation implementation.
-
----
-
-## 20. Pretrained Checkpoints
-
-Pretrained checkpoints are provided for the experiments reported in the manuscript.
-
-The naming convention is designed to make the correspondence between the checkpoint and the experimental setting explicit. Examples include:
-
-```
-best_model_with_attention_Greenbit.h5
-best_model_with_attention_Orcanthus.h5
-best_model_with_attention_Italdata.h5
-best_model_with_attention_Biometrika.h5
-```
-
-The checkpoint files are organized together with experiment-specific result directories. For example:
-
-```
-LivDet_2017/
-├── best_model_with_attention_Greenbit.h5
-├── best_model_with_attention_Orcanthus.h5
-├── results_Greenbit/
-└── results_Orcanthus/
-```
-
-This organization allows each reported result to be directly traced to its corresponding checkpoint.
-
----
-
-## 21. Recommended Reproduction Workflow
-
-For users who want to reproduce a result reported in the paper, the recommended workflow is:
-
-**Step 1 — Obtain the code**
-
-Clone the GitHub repository:
+Example:
 
 ```bash
-git clone https://github.com/Sonda-Ammar/
-cd FAL-Net
+python plot_det_curve.py \
+  --dir "results_CrossMatch/ablation"
 ```
 
-**Step 2 — Download the pretrained checkpoint**
+The resulting figure is saved as:
 
-Open the Google Drive reproducibility package:
-https://drive.google.com/drive/u/0/folders/1xD8beNvmwn-r5pVSiCu4RkZg2Tu_w5nZ
+```text
+det_curve.png
+```
 
-Download the checkpoint corresponding to the desired experiment.
+### Cross-sensor DET comparison
 
-**Step 3 — Prepare the dataset**
-
-Obtain the corresponding LivDet dataset and organize the test data according to the directory structure expected by the evaluation script.
-
-**Step 4 — Run the evaluation**
+For the LivDet 2015 sensors used in the paper:
 
 ```bash
-python test_ablation.py \
-  --model "<CHECKPOINT>.h5" \
-  --output "<OUTPUT_DIRECTORY>" \
-  --real-dir-test "<LIVE_TEST_DIRECTORY>" \
-  --fake-dir-test "<SPOOF_TEST_DIRECTORY>"
+python plot_det_evolution.py \
+  --dir2015CM "results_CrossMatch/ablation/proposed_r8" \
+  --dir2015HS "results_Hi_Scan/ablation/proposed_r8" \
+  --dir2015DP "results_Digital_Persona/ablation/proposed_r8" \
+  --dir2015GB "results_GreenBit/ablation/proposed_r8"
 ```
 
-**Step 5 — Inspect the results**
+The resulting figure is:
 
-The evaluation produces `results_metrics.json`. The resulting metrics can then be compared with the corresponding table in the manuscript.
-
----
-
-## 22. Contact
-
-For questions concerning the implementation, datasets, or reproducibility package, please contact me : sonda.ammarisims.usf.tn
+```text
+det_evolution_livdet.png
+```
 
 ---
 
-## 23. Citation
+## 8. Computational-Efficiency Benchmark
 
-If you use FAL-Net or this implementation in your research, please cite the corresponding paper:
+Computational-efficiency measurements are generated by the ablation workflow using `benchmark_efficiency.py`.
+
+The benchmark reports:
+
+```text
+trainable parameters
+total parameters
+FLOPs
+training peak memory
+inference peak memory
+inference latency
+training-step latency
+```
+
+For the results reported in the paper, the benchmark was conducted using the **LivDet 2015 Hi-Scan setting** under the same hardware and software environment for all ablation configurations.
+
+The benchmark uses a fixed input resolution of:
+
+```text
+224 × 224 × 3
+```
+
+and consistent measurement conditions.
+
+This controlled setup is intended to provide a fair comparison of computational cost between the evaluated configurations.
+
+The per-configuration benchmark results are stored in:
+
+```text
+benchmark_metrics.json
+```
+
+and consolidated in:
+
+```text
+full_summary.json
+```
+
+---
+
+## 9. Reproducibility and CLI Verification
+
+To verify the exact interfaces implemented in the released code, users can run:
+
+```bash
+python train_ablation.py --help
+python test_ablation.py --help
+python ablation_runner.py --help
+python repeat_experiments.py --help
+python plot_det_curve.py --help
+python plot_det_evolution.py --help
+```
+
+The current implementation does **not** use undocumented arguments such as:
+
+```text
+--config
+--dataset
+```
+
+The ablation configurations are predefined internally in `ablation_runner.py`.
+
+---
+
+## 10. Citation
+
+If you use this implementation, please cite:
 
 ```bibtex
 @article{FALNet,
   title={FAL-Net: A Hybrid LoRA-Enhanced Architecture with Spatial Attention for Robust Fingerprint Liveness Detection},
-  author={Sonda Ammar Bouhamed, Mouna Medhioub, Manel Ayadi, Nesrine Masmoudi, Tagrid Abdullah N. Alshalali},
+  author={Bouhamed, Sonda Ammar and Medhioub, Mouna and Ayadi, Manel and Masmoudi, Nesrine and Alshalali, Tagrid Abdullah N.},
   journal={IEEE Transactions on Biometrics, Behavior, and Identity Science},
   year={2026}
 }
 ```
+
+---
+
+## 11. Contact
+
+**Sonda Ammar Bouhamed**
+Associate Professor
+Higher Institute of Computer Science and Multimedia of Sfax (ISIMS)
+University of Sfax, Tunisia
+SM@RTS Laboratory, Digital Research Center of Sfax (CRNS)
