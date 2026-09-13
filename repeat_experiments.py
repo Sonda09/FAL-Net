@@ -14,11 +14,7 @@ def main():
     parser.add_argument('--fake-dir-train', type=str, required=True, help='Path to training Fake/spoof images')
     parser.add_argument('--real-dir-test', type=str, required=True, help='Path to testing Live/real images')
     parser.add_argument('--fake-dir-test', type=str, required=True, help='Path to testing Fake/spoof images')
-
-    # --- Prefixe de sortie, propre a chaque dataset/sensor (ex: results_CrossMatch, results_Hi_Scan) ---
-    # Transmis tel quel a ablation_runner.py --output-prefix.
-    parser.add_argument('--output-prefix', type=str, required=True,
-                         help='Output prefix, distinct per sensor/dataset (e.g. results_CrossMatch, results_Hi_Scan)')
+    parser.add_argument('--sensor', type=str, required=True, help='Sensor name, e.g., CrossMatch, Greenbit')
 
     args = parser.parse_args()
 
@@ -29,7 +25,12 @@ def main():
     # we can just run it, collect full_summary.json, and rename it.
 
     for i in range(args.runs):
-        print(f"\n{'='*50}\nStarting Statistical Run {i+1}/{args.runs}\n{'='*50}")
+        print(
+            f"\n{'=' * 50}\n"
+            f"Starting Statistical Run {i + 1}/{args.runs}\n"
+            f"Sensor: {args.sensor}\n"
+            f"{'=' * 50}"
+        )
         # Run standard ablation
         subprocess.run(
             [
@@ -39,12 +40,11 @@ def main():
                 "--fake-dir-train", args.fake_dir_train,
                 "--real-dir-test", args.real_dir_test,
                 "--fake-dir-test", args.fake_dir_test,
-                "--output-prefix", args.output_prefix,
             ],
             check=True
         )
 
-        summary_path = os.path.join(args.output_prefix, "ablation", "full_summary.json")
+        summary_path = f"results_{args.sensor}/ablation/full_summary.json"
 
         if os.path.exists(summary_path):
             with open(summary_path, 'r') as f:
@@ -52,8 +52,7 @@ def main():
                 results_all_runs.append(data)
 
             # Rename so it's not overwritten
-            run_path = os.path.join(args.output_prefix, "ablation", f"full_summary_run_{i+1}.json")
-            os.rename(summary_path, run_path)
+            os.rename(summary_path, f"results_{args.sensor}/ablation/full_summary_run_{i+1}.json")
 
     # Aggregate stats
     print("\n\n" + "=" * 100)
