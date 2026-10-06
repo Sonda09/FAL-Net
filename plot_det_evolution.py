@@ -30,7 +30,7 @@ def plot_longitudinal_det(base_dirs, labels):
                 fpr = fpr[valid_idx]
                 fnr = fnr[valid_idx]
                 
-                plt.plot(fpr * 100, fnr * 100, label=label, linewidth=2.5, color=color)
+                plt.plot(fnr * 100, fpr * 100, label=label, linewidth=2.5, color=color)
                 found_data = True
             except Exception as e:
                 print(f"Error loading {roc_path}: {e}")
