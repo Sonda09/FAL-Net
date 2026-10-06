@@ -31,7 +31,7 @@ def plot_det_curves(base_dir="results_CrossMatch/ablation"):
                 fnr = fnr[valid_idx]
                 
                 # Plot FMR (FPR) vs FNMR (FNR)
-                plt.plot(fpr * 100, fnr * 100, label=config, linewidth=2)
+                plt.plot(fnr * 100, fpr * 100, label=config, linewidth=2)
                 found_data = True
             except Exception as e:
                 print(f"Error loading {roc_path}: {e}")
