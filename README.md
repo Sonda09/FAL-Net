@@ -2,7 +2,7 @@
 
 **FAL-Net: A Hybrid LoRA-Enhanced Architecture with Spatial Attention for Robust Fingerprint Liveness Detection**
 
-This repository contains the implementation and reproducibility resources associated with the FAL-Net paper submitted to *IEEE Transactions on Biometrics, Behavior, and Identity Science*.
+This repository provides the implementation and reproducibility resources associated with the FAL-Net paper submitted to *IEEE Transactions on Biometrics, Behavior, and Identity Science*.
 
 The implementation supports model training, testing, ablation experiments, repeated experiments, DET-curve generation, and computational-efficiency evaluation.
 
@@ -120,7 +120,6 @@ full_finetuning
 frozen_backbone
 baseline
 lora_only
-ssa_only
 proposed_r4
 proposed_r8
 single_scale
@@ -188,7 +187,6 @@ Example:
 
 ```bash
 python repeat_experiments.py \
-  --runs 3 \
   --real-dir-train "<CROSSMATCH_LIVE_TRAIN_DIRECTORY>" \
   --fake-dir-train "<CROSSMATCH_SPOOF_TRAIN_DIRECTORY>" \
   --real-dir-test "<CROSSMATCH_LIVE_TEST_DIRECTORY>" \
